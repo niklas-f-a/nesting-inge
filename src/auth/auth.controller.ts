@@ -7,22 +7,24 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from './decorators/public-route';
+import { Roles } from './decorators/roles.decorator';
 import { LoginDto } from './dto/login.dto';
+import { Role } from './enums/role-enum';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RolesGuard } from './guards/roles.guard';
 
 @Controller()
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Public()
   @Post('auth/login')
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Get('me')
   getProfile(@Request() req) {
     return req.user;
   }

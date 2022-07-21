@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { ROLES } from '../../auth/role-enum';
+import { Role } from '../../auth/enums/role-enum';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -19,10 +19,10 @@ export class User {
 
   @Prop({
     type: String,
-    enum: ROLES,
-    default: ROLES.CLIENT,
+    enum: Role,
+    default: Role.CLIENT,
   })
-  role?: ROLES;
+  role?: Role;
 
   @Prop({
     type: String,
