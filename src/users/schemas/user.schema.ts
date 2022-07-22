@@ -6,6 +6,8 @@ export type UserDocument = User & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class User {
+  _id?: string;
+  sub?: string;
   @Prop({ required: true })
   name: string;
 
@@ -30,7 +32,7 @@ export class User {
     minlength: 6,
     trim: true,
   })
-  hashPassword: string;
+  hashPassword?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
