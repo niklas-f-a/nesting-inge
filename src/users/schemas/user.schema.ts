@@ -6,8 +6,8 @@ export type UserDocument = User & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class User {
-  _id?: string;
-  sub?: string;
+  _id?: mongoose.Schema.Types.ObjectId;
+  sub?: mongoose.Schema.Types.ObjectId;
   @Prop({ required: true })
   name: string;
 
