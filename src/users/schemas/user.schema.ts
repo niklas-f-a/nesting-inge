@@ -31,6 +31,7 @@ export class User {
     required: true,
     minlength: 6,
     trim: true,
+    select: false,
   })
   hashPassword?: string;
 }

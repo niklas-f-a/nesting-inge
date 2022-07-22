@@ -23,13 +23,13 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  create(@Body() dto: CreateUserDto): Promise<User> {
-    return this.usersService.create(dto);
+  async create(@Body() dto: CreateUserDto): Promise<User> {
+    return await this.usersService.create(dto);
   }
 
   @Roles(Role.ADMIN)
   @Get(':id')
-  findById(@Param('id') id: number): Promise<User> {
-    return this.usersService.findById(id);
+  async findById(@Param('id') id: number): Promise<User> {
+    return await this.usersService.findById(id);
   }
 }

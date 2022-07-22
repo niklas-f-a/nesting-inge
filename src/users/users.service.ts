@@ -15,14 +15,14 @@ export class UsersService {
     return newUser;
   }
 
-  async findOne(email: string): Promise<User> {
+  async findOneByEmail(email: string, selectedField?: string): Promise<User> {
+    if (selectedField) {
+      return await this.userModel.findOne({ email }).select(selectedField);
+    }
     return await this.userModel.findOne({ email });
   }
 
   async findById(id: number): Promise<User> {
-    const user = this.userModel.findById(id);
-    console.log(user);
-
-    return user;
+    return this.userModel.findById(id).exec();
   }
 }

@@ -13,7 +13,8 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<User> {
-    const user = await this.usersService.findOne(email);
+    const selectedField = '+hashPassword';
+    const user = await this.usersService.findOneByEmail(email, selectedField);
 
     const isMatch = bcrypt.compareSync(password, user.hashPassword);
 
