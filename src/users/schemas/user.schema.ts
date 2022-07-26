@@ -8,8 +8,8 @@ export type UserDocument = User & mongoose.Document;
 export class User {
   _id?: mongoose.Schema.Types.ObjectId;
   sub?: mongoose.Schema.Types.ObjectId;
-  @Prop({ required: true })
-  name: string;
+  @Prop()
+  name?: string;
 
   @Prop({
     type: String,

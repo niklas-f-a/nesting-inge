@@ -23,6 +23,7 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Public()
   @Get('auth/me')
   getProfile(@Request() req): User {
     return req.user;

@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { Role } from '../../../auth/enums/role-enum';
-export const userStub = () => {
+export const adminStub = () => {
   return {
     name: 'Goran Pandev',
     email: 'goran@pandev.com',
