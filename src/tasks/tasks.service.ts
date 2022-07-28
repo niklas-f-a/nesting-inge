@@ -8,9 +8,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { Task, TaskDocument } from './schemas/task.schema';
+import { UpdateTaskDto, CreateTaskDto, CreateMessageDto } from './dto';
+import { Task, TaskDocument, Message } from './schemas/task.schema';
 import { Role } from '../auth/enums/role-enum';
 import { User } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
@@ -121,6 +120,89 @@ export class TasksService {
       }
     } catch (error) {
       throw new InternalServerErrorException('Problemo');
+    }
+  }
+
+  async addMessage(
+    taskId: string,
+    userId: string,
+    dto: CreateMessageDto,
+  ): Promise<Task> {
+    try {
+      const task = await this.taskModel.findById(taskId).exec();
+      if (!task) {
+        throw new NotFoundException('Resource not found');
+      }
+      if (
+        task.client.toString() === userId ||
+        task.worker.toString() === userId
+      ) {
+        const newMessage = {
+          content: dto.content,
+          sender: userId,
+        };
+        task.messages.push(newMessage);
+        return task.save();
+      } else {
+        throw new ForbiddenException();
+      }
+    } catch (error) {
+      throw new InternalServerErrorException('Craaaaschhchchch');
+    }
+  }
+
+  async getMessages(id: string, user: any): Promise<{ messages: Message[] }> {
+    try {
+      const task = await this.taskModel.findById(id).exec();
+      if (!task) {
+        throw new NotFoundException();
+      }
+      if (
+        task.worker.toString() === user.sub ||
+        task.client.toString() === user.sub ||
+        user.role === Role.ADMIN
+      ) {
+        return { messages: task.messages };
+      } else {
+        throw new ForbiddenException();
+      }
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async deleteMessage(
+    id: string,
+    messageId: string,
+    user: any,
+  ): Promise<string> {
+    try {
+      const task = await this.taskModel.findById(id).exec();
+      if (!task) {
+        throw new NotFoundException();
+      }
+      const messageToDelete = task.messages.find(
+        (message) => message._id.toString() === messageId,
+      );
+      console.log(messageToDelete);
+
+      if (!messageToDelete) {
+        throw new NotFoundException();
+      }
+      if (
+        messageToDelete.sender.toString() === user.sub ||
+        user.role === Role.ADMIN
+      ) {
+        task.messages = task.messages.filter(
+          (message) => message._id.toString() !== messageId,
+        );
+        task.save();
+        return JSON.stringify(`Message with id ${messageToDelete._id} deleted`);
+      } else {
+        throw new ForbiddenException();
+      }
+    } catch (error) {
+      throw new InternalServerErrorException();
     }
   }
 }

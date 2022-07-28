@@ -4,9 +4,10 @@ import { User } from '../../users/schemas/user.schema';
 
 export type TaskDocument = Task & mongoose.Document;
 
-interface Message {
+export interface Message {
+  _id?: mongoose.Schema.Types.ObjectId;
   content: string;
-  date: Date;
+  date?: Date;
   sender: string;
 }
 
