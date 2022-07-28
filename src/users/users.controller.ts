@@ -37,7 +37,7 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @Get(':id')
   async findById(@Param('id') id: string): Promise<User> {
-    return await this.usersService.findById(id);
+    return await this.usersService.findById(+id);
   }
 
   @Roles(Role.CLIENT, Role.WORKER)
@@ -46,12 +46,12 @@ export class UsersController {
     if (Object.keys(dto).length === 0) {
       throw new BadRequestException('Include som data');
     }
-    return await this.usersService.update(req.user.sub, dto);
+    return await this.usersService.update(+req.user.sub, dto);
   }
 
   @Roles(Role.ADMIN)
   @Delete(':id')
   async deleteById(@Param('id') id: string): Promise<string> {
-    return await this.usersService.deleteById(id);
+    return await this.usersService.deleteById(+id);
   }
 }

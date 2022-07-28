@@ -35,7 +35,7 @@ export class UsersService {
     return user;
   }
 
-  async findById(id: string): Promise<User> {
+  async findById(id: number): Promise<User> {
     let user: User;
     try {
       user = await this.userModel.findById(id).exec();
@@ -52,7 +52,7 @@ export class UsersService {
     return this.userModel.find();
   }
 
-  async update(id: string, dto: UpdateUserDto): Promise<User> {
+  async update(id: number, dto: UpdateUserDto): Promise<User> {
     try {
       const user = await this.userModel.findById(id).select('+hashPassword');
       if (!user) {
@@ -80,7 +80,7 @@ export class UsersService {
     }
   }
 
-  async deleteById(id: string): Promise<string> {
+  async deleteById(id: number): Promise<string> {
     try {
       const result = await this.userModel.deleteOne({ _id: id });
       if (result?.deletedCount > 0) {
