@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { UpdateTaskDto, CreateTaskDto, CreateMessageDto } from './dto';
 import { Task, TaskDocument, Message } from './schemas/task.schema';
@@ -184,8 +186,6 @@ export class TasksService {
       const messageToDelete = task.messages.find(
         (message) => message._id.toString() === messageId,
       );
-      console.log(messageToDelete);
-
       if (!messageToDelete) {
         throw new NotFoundException();
       }
@@ -201,6 +201,73 @@ export class TasksService {
       } else {
         throw new ForbiddenException();
       }
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+  async validateUpload(
+    fileName: string,
+    taskId: string,
+    userId: string,
+  ): Promise<string> {
+    try {
+      const task = await this.taskModel.findById(taskId).exec();
+
+      if (!task) {
+        fs.unlinkSync(path.join('uploads', fileName));
+        throw new NotFoundException();
+      }
+      if (task.worker.toString() !== userId) {
+        fs.unlinkSync(path.join('uploads', fileName));
+        throw new ForbiddenException();
+      }
+      task.imageLink = fileName;
+      task.save();
+      return JSON.stringify('Image ' + fileName + ' uploaded');
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async downLoadImage(taskId: string, user: User) {
+    try {
+      const task = await this.taskModel.findById(taskId);
+      const imgPath = path.join('uploads', task.imageLink);
+
+      if (!task) {
+        throw new NotFoundException('No such task');
+      }
+      if (
+        task.worker != user.sub &&
+        task.client != user.sub &&
+        user.role !== Role.ADMIN
+      ) {
+        throw new ForbiddenException();
+      }
+      if (!fs.existsSync(imgPath)) {
+        throw new NotFoundException('No such image');
+      }
+
+      return imgPath;
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async deleteImage(taskId: string): Promise<string> {
+    try {
+      const task = await this.taskModel.findById(taskId);
+      const imageName = task.imageLink;
+      if (!task) {
+        throw new NotFoundException('Task not found');
+      }
+      if (imageName.length < 1) {
+        throw new NotFoundException('Task has no image');
+      }
+      fs.unlinkSync(path.join('uploads', imageName));
+      task.imageLink = '';
+      task.save();
+      return JSON.stringify(`Image ${imageName} Deleted`);
     } catch (error) {
       throw new InternalServerErrorException();
     }
